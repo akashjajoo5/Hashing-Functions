@@ -1,4 +1,6 @@
 import java.util.*;
+import java.io.FileWriter;
+import java.io.BufferedWriter;
 
 class HashTables {
     public static void main(String args[]) {
@@ -36,9 +38,13 @@ class HashTables {
         }
         
         i = 0;
+        Set<Integer> duplicateFlowId = new HashSet<>();
         while (i < numFlows) {
             int randomNumber = getRandom();
-            flowId[i++] = randomNumber;
+            if(!duplicateFlowId.contains(randomNumber)) {
+                flowId[i++] = randomNumber;
+                duplicateFlowId.add(randomNumber);
+            }
         }
         
         multiHashing(tableEntriesMulti, hashFunction, flowId);
@@ -58,10 +64,7 @@ class HashTables {
                 }
             }
         }
-        System.out.println(ans);
-        // for (int j = 0; j < tableEntries.length; j++) {
-        //     System.out.println("Entry at "+j+" is "+(tableEntries[j] == -1 ? 0 : tableEntries[j]));
-        // }
+        printToFile(ans, tableEntries, "multi_output");
     }
 
     public static void cuckooHashing(int[] tableEntries, int[] hashFunction, int[] flowId, int levels) {
@@ -71,10 +74,7 @@ class HashTables {
                 ans++;
             }
         }
-        System.out.println(ans);
-        // for (int j = 0; j < tableEntries.length; j++) {
-        //     System.out.println("Entry at "+j+" is "+(tableEntries[j] == -1 ? 0 : tableEntries[j]));
-        // }
+        printToFile(ans, tableEntries, "cuckoo_output");
     }
 
     public static void dLeftHashing(int[] tableEntries,  int[] flowId, int segments) {
@@ -105,10 +105,7 @@ class HashTables {
                 start += segmentSize;
             }
         }
-        System.out.println(ans);
-        // for (int j = 0; j < tableEntries.length; j++) {
-        //     System.out.println("Entry at "+j+" is "+(tableEntries[j] == -1 ? 0 : tableEntries[j]));
-        // }
+        printToFile(ans, tableEntries, "dleft_output");
     }
 
     public static boolean fit(int[] tableEntries, int[] hashFunction, int flowId, int level) {
@@ -135,5 +132,20 @@ class HashTables {
     public static int getRandom() {
         Random r = new Random();
         return r.nextInt(Integer.MAX_VALUE - 0);
+    }
+
+    public static void printToFile(int ans, int[] tableEntries, String filename) {
+        try {
+            FileWriter file = new FileWriter(filename+".txt");
+            BufferedWriter output = new BufferedWriter(file);
+            
+            output.write("Entries succesfully inserted in the table- "+ans+"\n");
+            for (int j = 0; j < tableEntries.length; j++) {
+                output.write("\nEntry at "+j+" is "+(tableEntries[j] == -1 ? 0 : tableEntries[j]));
+            }
+            output.close();
+        } catch (Exception e) {
+            e.getStackTrace();
+        }
     }
 }
