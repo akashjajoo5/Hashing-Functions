@@ -69,11 +69,29 @@ class HashTables {
 
     public static void cuckooHashing(int[] tableEntries, int[] hashFunction, int[] flowId, int levels) {
         int ans = 0;
+        boolean flag = false;
         for (int i = 0; i < flowId.length; i++) {
-            if(fit(tableEntries, hashFunction, flowId[i], levels)) {
-                ans++;
+            for (int j = 0; j < hashFunction.length; j++) {
+                int hashedVal = (hashFunction[j] ^ flowId[i]) % tableEntries.length;
+                if (tableEntries[hashedVal] == -1) {
+                    tableEntries[hashedVal] = flowId[i];
+                    ans++;
+                    flag = true;
+                    break;
+                }
             }
+            
+            for (int j = 0; j < hashFunction.length; j++) {
+                int hashedVal = (hashFunction[j] ^ flowId[i]) % tableEntries.length;
+                if (!flag && fit(tableEntries, hashFunction, tableEntries[hashedVal], levels)) {
+                    tableEntries[hashedVal] = flowId[i];
+                    ans++;
+                    break;
+                }
+            }
+            flag = false;
         }
+
         printToFile(ans, tableEntries, "cuckoo_output");
     }
 
@@ -109,7 +127,6 @@ class HashTables {
     }
 
     public static boolean fit(int[] tableEntries, int[] hashFunction, int flowId, int level) {
-        boolean flag = false;
         if(level == 0) return false;
         for (int j = 0; j < hashFunction.length; j++) {
             int hashedVal = (hashFunction[j]^flowId) % tableEntries.length;
@@ -131,7 +148,7 @@ class HashTables {
 
     public static int getRandom() {
         Random r = new Random();
-        return r.nextInt(Integer.MAX_VALUE - 0);
+        return r.nextInt(Integer.MAX_VALUE);
     }
 
     public static void printToFile(int ans, int[] tableEntries, String filename) {
@@ -139,7 +156,7 @@ class HashTables {
             FileWriter file = new FileWriter(filename+".txt");
             BufferedWriter output = new BufferedWriter(file);
             
-            output.write("Entries succesfully inserted in the table- "+ans+"\n");
+            output.write("Entries successfully inserted in the table- "+ans+"\n");
             for (int j = 0; j < tableEntries.length; j++) {
                 output.write("\nEntry at "+j+" is "+(tableEntries[j] == -1 ? 0 : tableEntries[j]));
             }
